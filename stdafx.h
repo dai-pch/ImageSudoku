@@ -15,6 +15,7 @@
 // TODO:  在此处引用程序需要的其他头文件
 #include <iostream>  
 #include <string>
+//#include <error>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>

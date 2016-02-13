@@ -6,8 +6,9 @@
 using namespace cv;
 using namespace std;
 
-#define ROI_INDENT 0
+#define FIND_ROI_CUT 0
 #define TRANSFORMED_SIZE 540
+#define TRANSFORMED_MARGIN 5
 
 void FindROI(Mat const SourceImage, Mat& ROIImage);
 
