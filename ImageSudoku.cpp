@@ -34,7 +34,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	namedWindow("ROI");
 	imshow("ROI", targetImage);
 
-
+	splitImage(targetImage);
 
 
 

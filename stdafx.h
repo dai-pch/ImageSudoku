@@ -21,4 +21,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include "others.h"
 #include "preproc.h"
+#include "split.h"
