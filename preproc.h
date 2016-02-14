@@ -10,6 +10,6 @@ using namespace std;
 #define TRANSFORMED_SIZE 540
 #define TRANSFORMED_MARGIN 5
 
-void FindROI(Mat const SourceImage, Mat& ROIImage);
+Mat FindROI(Mat const SourceImage);
 
 #endif

@@ -3,14 +3,15 @@
 using namespace cv;
 using namespace std;
 
-void FindROI(Mat const SourceImage, Mat& ROIImage)
+Mat FindROI(Mat const SourceImage)
 {
 	//二值化
 	Mat binaryImage;
 	threshold(SourceImage, binaryImage, 191, 255, CV_THRESH_TRIANGLE);
 
+	/*//显示二值化图像
 	namedWindow("二值化图像");
-	imshow("二值化图像", binaryImage);
+	imshow("二值化图像", binaryImage);*/
 
 	//检测轮廓
 	vector<vector<Point>> contours;
@@ -64,6 +65,17 @@ void FindROI(Mat const SourceImage, Mat& ROIImage)
 		vertices[ii] = targetApproxContours.at((ii + index) % 4);
 	}
 
+	/*
+	//画出轮廓
+	Mat contoursImage = Mat::zeros(binaryImage.size(), CV_8UC3);
+	//drawContours(contoursImage, contours, maxIndex, Scalar(128, 255, 255), 1, LINE_AA, hierarchy, 0);
+	for (int i = 0; i < 4; i++)
+		line(contoursImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
+	//显示轮廓
+	namedWindow("轮廓检测");
+	imshow("轮廓检测", contoursImage);
+	waitKey();
+	*/
 
 	//仿射变换
 	Point2f transedVertices[4];
@@ -75,16 +87,5 @@ void FindROI(Mat const SourceImage, Mat& ROIImage)
 	Mat warpedImage = Mat::zeros(Size(TRANSFORMED_SIZE + 2*TRANSFORMED_MARGIN, TRANSFORMED_SIZE + 2*TRANSFORMED_MARGIN), CV_8UC1);
 	warpPerspective(SourceImage, warpedImage, transformMatrix, warpedImage.size(), INTER_CUBIC);
 
-
-	//画出轮廓
-	Mat contoursImage = Mat::zeros(binaryImage.size(), CV_8UC3);
-	//drawContours(contoursImage, contours, maxIndex, Scalar(128, 255, 255), 1, LINE_AA, hierarchy, 0);
-	for (int i = 0; i < 4; i++)
-		line(contoursImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
-
-	//显示轮廓
-	namedWindow("轮廓检测");
-	imshow("轮廓检测", warpedImage);//contoursImage);
-	waitKey();
-
+	return warpedImage;
 }

@@ -22,11 +22,23 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 0;
 	}
 
+	//显示原始灰度图像
 	namedWindow("原始图像");
 	imshow("原始图像",image);
 
+	//寻找网格区域
 	Mat targetImage;
-	FindROI(image, targetImage);
+	targetImage = FindROI(image);
+
+	//显示寻找到的区域
+	namedWindow("ROI");
+	imshow("ROI", targetImage);
+
+
+
+
+
+	waitKey();
 
 	return 0;
 }
