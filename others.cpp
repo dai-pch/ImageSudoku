@@ -45,7 +45,7 @@ int InterestContour(vector<vector<Point>> const SourceContours, vector<Vec4i, al
 	for (index = 0; index < (int)SourceContours.size(); index++)
 	{
 		area = contourArea(SourceContours.at(index));
-		if (area > maxArea && contoursNumber(SourceHierarchy, index, 1) > Number_Threshold)
+		if (area > maxArea && contoursNumber(SourceHierarchy, index, 1) >= Number_Threshold)
 		{
 			//¶à±ßÐÎÄâºÏ
 			approxPolyDP(SourceContours.at(index), approxContours, arcLength(SourceContours.at(index), true)*0.02, true);
