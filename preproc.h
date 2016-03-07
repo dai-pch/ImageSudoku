@@ -12,4 +12,7 @@ using namespace std;
 
 Mat FindROI(Mat const SourceImage);
 
+//给边界顶点按顺时针排序，要求边界为凸的
+void SortVertex(vector<Point> &SourceVertex);
+
 #endif

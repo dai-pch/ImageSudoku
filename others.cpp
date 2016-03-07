@@ -49,7 +49,7 @@ int InterestContour(vector<vector<Point>> const SourceContours, vector<Vec4i, al
 		{
 			//¶à±ßÐÎÄâºÏ
 			approxPolyDP(SourceContours.at(index), approxContours, arcLength(SourceContours.at(index), true)*0.02, true);
-			if (approxContours.size() == 4)
+			if (approxContours.size() == 4 && isContourConvex(approxContours))
 			{
 				maxArea = area;
 				maxIndex = index;

@@ -31,7 +31,8 @@ Mat FindROI(Mat const SourceImage)
 	approxPolyDP(contours.at(index), approxContours, arcLength(contours.at(index), true)*0.02, true);
 	
 	//角点排序
-	int distance = 0, maxDistance = 0;
+	SortVertex(approxContours);
+	/*int distance = 0, maxDistance = 0;
 	index = 0;
 	//寻找左上角元素
 	maxDistance = approxContours.at(0).x + approxContours.at(0).y;
@@ -43,12 +44,11 @@ Mat FindROI(Mat const SourceImage)
 			maxDistance = distance;
 			index = ii;
 		}
-	}
-	//进行排序
+	}*/
 	Point2f vertices[4];
 	for (int ii = 0; ii < 4; ii++)
 	{
-		vertices[ii] = approxContours.at((ii + index) % 4);
+		vertices[ii] = approxContours.at(ii);
 	}
 
 	/*
@@ -69,9 +69,36 @@ Mat FindROI(Mat const SourceImage)
 	transedVertices[1] = Point2f(TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1, TRANSFORMED_MARGIN);
 	transedVertices[2] = Point2f(TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1, TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1);
 	transedVertices[3] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1);
-	Mat transformMatrix = getPerspectiveTransform(vertices, transedVertices);
+
+   	Mat transformMatrix = getPerspectiveTransform(vertices, transedVertices);
 	Mat warpedImage = Mat::zeros(Size(TRANSFORMED_SIZE + 2*TRANSFORMED_MARGIN, TRANSFORMED_SIZE + 2*TRANSFORMED_MARGIN), CV_8UC1);
 	warpPerspective(SourceImage, warpedImage, transformMatrix, warpedImage.size(), INTER_CUBIC);
 
 	return warpedImage;
+}
+
+void SortVertex(vector<Point> &SourceVertex)
+{
+	double center_x = 0, center_y = 0;
+	for (vector<Point>::iterator it = SourceVertex.begin(); it != SourceVertex.end(); it++)
+	{
+		center_x += it->x;
+		center_y += it->y;
+	}
+	center_x /= SourceVertex.size();
+	center_y /= SourceVertex.size();
+
+	sort(SourceVertex.begin(), SourceVertex.end(), 
+		[center_x, center_y](Point a, Point b)
+	{
+		double a_x = a.x - center_x;
+		double a_y = a.y - center_y;
+		double b_x = b.x - center_x;
+		double b_y = b.y - center_y;
+		double a_len = sqrt(a_x*a_x + a_y*a_y);
+		double b_len = sqrt(b_x*b_x + b_y*b_y);
+		a_x = (a_x / a_len - 1.5) * (a_y > 0 ? -1 : 1);
+		b_x = (b_x / b_len - 1.5) * (b_y > 0 ? -1 : 1);
+		return (a_x < b_x);
+	});
 }

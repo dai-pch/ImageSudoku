@@ -30,15 +30,18 @@ int _tmain(int argc, _TCHAR* argv[])
 	Mat targetImage;
 	targetImage = FindROI(image);
 
-	//显示寻找到的区域
+	/*//显示寻找到的区域
 	namedWindow("ROI");
-	imshow("ROI", targetImage);
+	imshow("ROI", targetImage);*/
 
-	splitImage(targetImage);
+	vector<Mat> splitedImage = splitImage(targetImage);
+	namedWindow("splitedImage");
+	for (int ii = 0; ii < 81; ii++)
+	{
+		imshow("splitedImage", splitedImage.at(ii));
+		waitKey();
+	}
 
-
-
-	waitKey();
 
 	return 0;
 }
