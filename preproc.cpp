@@ -45,7 +45,7 @@ Mat FindROI(Mat const SourceImage)
 			index = ii;
 		}
 	}*/
-	vector<Point2f> vertices(4);
+	Point2f vertices[4];
 	for (int ii = 0; ii < 4; ii++)
 	{
 		vertices[ii] = approxContours.at(ii);
@@ -64,8 +64,8 @@ Mat FindROI(Mat const SourceImage)
 	*/
 
 	//·ÂÉä±ä»»
-	vector<Point2f> transedVertices;
-	transedVertices[0] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_MARGIN));
+	Point2f transedVertices[4];
+	transedVertices[0] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_MARGIN);
 	transedVertices[1] = Point2f(TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1, TRANSFORMED_MARGIN);
 	transedVertices[2] = Point2f(TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1, TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1);
 	transedVertices[3] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1);

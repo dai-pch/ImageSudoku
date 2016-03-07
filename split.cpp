@@ -29,11 +29,12 @@ vector<Mat> splitImage(Mat const SourceImage)
 	//提取出子边界
 	vector<Mat> splited(81);
 	int subimageWidth = SourceImage.cols / 9, subimageHight = SourceImage.rows / 9;
-	for (index = hierarchy.at(index)(3); index >= 0; index = hierarchy.at(index)(0))
+	for (index = hierarchy.at(index)(2); index >= 0; index = hierarchy.at(index)(0))
 	{
 		Point2d	contourCenter = center(contours.at(index));
 		int number = (int)(contourCenter.x / subimageWidth) + 9 * (int)(contourCenter.y / subimageHight);
-		splited.at(number) = SourceImage(ContentsRegion(contours, hierarchy, index));
+		Rect region = ContentsRegion(contours, hierarchy, index);
+		splited.at(number) = SourceImage(region);
 	}
 
 	return splited;
@@ -59,7 +60,7 @@ Rect ContentsRegion(vector<vector<Point>> const SourceContours, vector<Vec4i, al
 	int index = 0;
 
 	vector<Point> contents;
-	for (index = SourceHierarchy.at(Target)(3); index >= 0; index = SourceHierarchy.at(index)(0))
+	for (index = SourceHierarchy.at(Target)(2); index >= 0; index = SourceHierarchy.at(index)(0))
 	{
 		contents.insert(contents.end(), SourceContours.at(index).begin(), SourceContours.at(index).end());
 	}
