@@ -8,6 +8,14 @@ using namespace std;
 
 #define SPLIT_CUT 3
 
-/*vector<Mat>*/void splitImage(Mat const SourceImage);
+vector<Mat> splitImage(Mat const SourceImage);
+
+//Calculate the center of a set of points.
+Point2d center(const vector<Point> SetOfPoint);
+
+//Find the circumscribed rectangle of the conponents of a contours.
+Rect ContentsRegion(vector<vector<Point>> const SourceContours,
+					vector<Vec4i, allocator<Vec4i>> const SourceHierarchy,
+					int const index);
 
 #endif
