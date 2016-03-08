@@ -33,7 +33,7 @@ vector<Mat> splitImage(Mat const SourceImage)
 	{
 		Point2d	contourCenter = center(contours.at(index));
 		int number = (int)(contourCenter.x / subimageWidth) + 9 * (int)(contourCenter.y / subimageHight);
-		Rect region = ContentsRegion(contours, hierarchy, index);
+		Rect region = ContentsRegion(contours, index);
 		splited.at(number) = SourceImage(region);
 	}
 
@@ -55,15 +55,20 @@ Point2d center(const vector<Point> SetOfPoint)
 	return centerPoint;
 }
 
-Rect ContentsRegion(vector<vector<Point>> const SourceContours, vector<Vec4i, allocator<Vec4i>> const SourceHierarchy, int const Target)
+Rect ContentsRegion(vector<vector<Point>> const SourceContours, int const Target)
 {
-	int index = 0;
-
-	vector<Point> contents;
-	for (index = SourceHierarchy.at(Target)(2); index >= 0; index = SourceHierarchy.at(index)(0))
+	vector<Point> const &contents = SourceContours.at(Target);
+	Point2d centerPosition = center(contents);
+	int radio = 0;
+	vector<Point>::const_iterator it = contents.begin();
+	double radio_ = fmax(fabs(it->x - centerPosition.x), fabs(it->y - centerPosition.y));
+	radio = (int)radio_;
+	for (it++; it != contents.end(); it++)
 	{
-		contents.insert(contents.end(), SourceContours.at(index).begin(), SourceContours.at(index).end());
+		radio_ = fmax(fabs(it->x - centerPosition.x), fabs(it->y - centerPosition.y));
+		radio = (int)fmin(radio_, radio);
 	}
-
-	return boundingRect(contents);
+	radio -= 1;
+	
+	return Rect((int)centerPosition.x - radio, (int)centerPosition.y - radio, 2 * radio + 1, 2 * radio + 1);
 }
