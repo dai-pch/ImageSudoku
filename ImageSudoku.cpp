@@ -13,7 +13,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//cout << "Please input path and name of the image file:" << endl;
 	//cin >> filename;
-	fileName = "testimage.png";
+	fileName = "testimage3.png";
 	image = imread(fileName, 0);
 
 	if (image.empty())
@@ -33,15 +33,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	//显示寻找到的区域
 	namedWindow("ROI");
 	imshow("ROI", targetImage);
-
+	/*
 	vector<Mat> splitedImage = splitImage(targetImage);
-	namedWindow("splitedImage");
 	for (int ii = 0; ii < 81; ii++)
 	{
+		namedWindow("splitedImage");
 		imshow("splitedImage", splitedImage.at(ii));
 		waitKey();
+		destroyWindow("splitedImage");
 	}
-
-
+*/
+	waitKey();
 	return 0;
 }
