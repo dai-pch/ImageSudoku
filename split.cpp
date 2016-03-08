@@ -16,7 +16,7 @@ vector<Mat> splitImage(Mat const SourceImage)
 	//¼ì²âÂÖÀª
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
-	findContours(binaryImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	findContours(binaryImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
 
 	//Ñ°ÕÒ¾ØÐÎÍâ¿ò
 	int index = -1; //hierarchy.at(0)(2);
@@ -59,16 +59,16 @@ Rect ContentsRegion(vector<vector<Point>> const SourceContours, int const Target
 {
 	vector<Point> const &contents = SourceContours.at(Target);
 	Point2d centerPosition = center(contents);
-	int radio = 0;
+	double radio = 0;
 	vector<Point>::const_iterator it = contents.begin();
 	double radio_ = fmax(fabs(it->x - centerPosition.x), fabs(it->y - centerPosition.y));
-	radio = (int)radio_;
+	radio = radio_;
 	for (it++; it != contents.end(); it++)
 	{
 		radio_ = fmax(fabs(it->x - centerPosition.x), fabs(it->y - centerPosition.y));
-		radio = (int)fmin(radio_, radio);
+		radio = fmin(radio_, radio);
 	}
 	radio -= 1;
 	
-	return Rect((int)centerPosition.x - radio, (int)centerPosition.y - radio, 2 * radio + 1, 2 * radio + 1);
+	return Rect((int)(centerPosition.x - radio), (int)(centerPosition.y - radio), (2 * (int)radio + 1), (2 * (int)radio + 1));
 }
