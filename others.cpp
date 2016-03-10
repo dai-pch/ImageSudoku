@@ -59,3 +59,41 @@ int InterestContour(vector<vector<Point>> const SourceContours, vector<Vec4i, al
 
 	return maxIndex;
 }
+
+Mat ContrastStretch(Mat const SourceImage, double min)
+{
+	Mat hist;
+	int histSize = 256;
+	calcHist(&SourceImage, 1, 0, Mat(), hist, 1, &histSize, 0);
+	//cout << hist << endl;
+
+	int data_min = 0, data_max = 255;
+	int accumulate = 0, minValue = SourceImage.rows * SourceImage.cols * min;
+	for (accumulate = 0; data_min < histSize; data_min++)
+	{
+		accumulate += hist.at<float>(data_min);
+		if (accumulate > minValue) break;
+	}
+	
+	for (accumulate = 0; data_max >= 0; data_max--)
+	{
+		accumulate += hist.at<float>(data_max);
+		if (accumulate > minValue) break;
+	}
+	//cout << data_min << " " << data_max << endl;
+
+	Mat lookUp(1, 256, CV_8U);
+	int len = data_max - data_min;
+
+	if (len < 1) return SourceImage;
+
+	for (int i = 0; i<256; i++) {
+		if (i < data_min) lookUp.at<uchar>(i) = 0;
+		else if (i > data_max) lookUp.at<uchar>(i) = 255;
+		else lookUp.at<uchar>(i) = static_cast<uchar>(255.0*(i - data_min) / len);
+	}
+
+	Mat resultImage;
+	LUT(SourceImage, lookUp, resultImage);
+	return resultImage;
+}

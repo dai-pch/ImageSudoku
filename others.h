@@ -15,4 +15,7 @@ int InterestContour(vector<vector<Point>> const SourceContours,
 					vector<Vec4i, allocator<Vec4i>> const SourceHierarchy,
 					int const Number_Threshold);
 
+//对比度拉伸
+Mat ContrastStretch(Mat const SourceImage, double min);
+
 #endif
