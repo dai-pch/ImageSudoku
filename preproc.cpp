@@ -5,20 +5,44 @@ using namespace std;
 
 Mat FindROI(Mat const SourceImage)
 {
+	//形态学底帽均匀背景
+	Mat targetImage;
+	int eigenlen = SourceImage.cols / 70;
+	morphologyEx(SourceImage, targetImage, MORPH_BLACKHAT, getStructuringElement(MORPH_ELLIPSE, Size(eigenlen, eigenlen)));
+
 	//二值化
 	Mat binaryImage;
-	threshold(SourceImage, binaryImage, 191, 255, CV_THRESH_TRIANGLE);
+	threshold(targetImage, binaryImage, 191, 255, CV_THRESH_OTSU);
 
-	/*//显示二值化图像
-	namedWindow("二值化图像");
-	imshow("二值化图像", binaryImage);*/
+	//形态学膨胀运算
+	morphologyEx(binaryImage, targetImage, MORPH_DILATE, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+
+	/*//显示二值化和形态学膨胀图像
+	namedWindow("二值化图像", WINDOW_NORMAL);
+	imshow("二值化图像", binaryImage);
+	namedWindow("膨胀图像", WINDOW_NORMAL);
+	imshow("膨胀图像", targetImage);
+	waitKey();*/
 
 	//检测轮廓
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
-	findContours(binaryImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(FIND_ROI_CUT, FIND_ROI_CUT));
+	findContours(targetImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(FIND_ROI_CUT, FIND_ROI_CUT));
 
-	//寻找最大面积、有足够子边界和四边形元素
+	/*//绘制轮廓
+	Scalar color(0, 255, 0);
+	namedWindow("轮廓图像", WINDOW_NORMAL);
+	for (int idx=0; idx >= 0; idx = hierarchy[idx][0])
+	{
+	Mat dst = Mat::zeros(SourceImage.rows, SourceImage.cols, CV_8UC3);
+	drawContours(dst, contours, idx, color, FILLED, 8, hierarchy);
+	imshow("轮廓图像", dst);
+	//waitKey();
+	}*/
+
+
+
+	//寻找最大面积的四边形元素
 	int index = 0; //hierarchy.at(0)(2);
 	index = InterestContour(contours, hierarchy, 75);
 	if (index < 0)
@@ -28,8 +52,10 @@ Mat FindROI(Mat const SourceImage)
 
 	//多边形拟合
 	vector<Point> approxContours;
-	approxPolyDP(contours.at(index), approxContours, arcLength(contours.at(index), true)*0.02, true);
-	
+	vector<Point> temp;
+	convexHull(contours.at(index), temp);
+	approxPolyDP(temp, approxContours, arcLength(contours.at(index), true)*0.02, true);
+
 	//角点排序
 	SortVertex(approxContours);
 	/*int distance = 0, maxDistance = 0;
@@ -38,25 +64,25 @@ Mat FindROI(Mat const SourceImage)
 	maxDistance = approxContours.at(0).x + approxContours.at(0).y;
 	for (int ii = 1; ii < 4; ii++)
 	{
-		distance = approxContours.at(ii).x + approxContours.at(ii).y;
-		if (distance < maxDistance)
-		{
-			maxDistance = distance;
-			index = ii;
-		}
+	distance = approxContours.at(ii).x + approxContours.at(ii).y;
+	if (distance < maxDistance)
+	{
+	maxDistance = distance;
+	index = ii;
+	}
 	}*/
 	Point2f vertices[4];
-	for (int ii = 0; ii < 4; ii++)
-	{
-		vertices[ii] = approxContours.at(ii);
-	}
+	vertices[0] = approxContours.at(0) - Point(FIND_ROI_CUT - TRANSFORMED_CUT, FIND_ROI_CUT - TRANSFORMED_CUT);
+	vertices[1] = approxContours.at(1) - Point(FIND_ROI_CUT + TRANSFORMED_CUT, FIND_ROI_CUT - TRANSFORMED_CUT);
+	vertices[2] = approxContours.at(2) - Point(FIND_ROI_CUT + TRANSFORMED_CUT, FIND_ROI_CUT + TRANSFORMED_CUT);
+	vertices[3] = approxContours.at(3) - Point(FIND_ROI_CUT - TRANSFORMED_CUT, FIND_ROI_CUT + TRANSFORMED_CUT);
 
 	/*
 	//画出轮廓
 	Mat contoursImage = Mat::zeros(binaryImage.size(), CV_8UC3);
 	//drawContours(contoursImage, contours, maxIndex, Scalar(128, 255, 255), 1, LINE_AA, hierarchy, 0);
 	for (int i = 0; i < 4; i++)
-		line(contoursImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
+	line(contoursImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
 	//显示轮廓
 	namedWindow("轮廓检测");
 	imshow("轮廓检测", contoursImage);
@@ -70,8 +96,8 @@ Mat FindROI(Mat const SourceImage)
 	transedVertices[2] = Point2f(TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1, TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1);
 	transedVertices[3] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1);
 
-   	Mat transformMatrix = getPerspectiveTransform(vertices, transedVertices);
-	Mat warpedImage = Mat::zeros(Size(TRANSFORMED_SIZE + 2*TRANSFORMED_MARGIN, TRANSFORMED_SIZE + 2*TRANSFORMED_MARGIN), CV_8UC1);
+	Mat transformMatrix = getPerspectiveTransform(vertices, transedVertices);
+	Mat warpedImage = Mat::zeros(Size(TRANSFORMED_SIZE + 2 * TRANSFORMED_MARGIN, TRANSFORMED_SIZE + 2 * TRANSFORMED_MARGIN), CV_8UC1);
 	warpPerspective(SourceImage, warpedImage, transformMatrix, warpedImage.size(), INTER_CUBIC);
 
 	return warpedImage;

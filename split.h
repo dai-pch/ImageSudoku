@@ -6,15 +6,8 @@
 using namespace cv;
 using namespace std;
 
-#define SPLIT_CUT 3
+#define SPLIT_CUT 5 //分离出的每个小矩形剪切的边距
 
 vector<Mat> splitImage(Mat const SourceImage);
-
-//Calculate the center of a set of points.
-Point2d center(const vector<Point> SetOfPoint);
-
-//Find the circumscribed rectangle of the conponents of a contours.
-Rect ContentsRegion(vector<vector<Point>> const SourceContours,
-					int const index);
 
 #endif

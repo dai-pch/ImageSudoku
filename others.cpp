@@ -35,7 +35,7 @@ int contoursNumber(vector<Vec4i, allocator<Vec4i>> const SourceHierarchy, int In
 	return number;
 }
 
-//寻找最大面积、有足够子边界和四边形元素
+//寻找最大面积的四边形元素
 int InterestContour(vector<vector<Point>> const SourceContours, vector<Vec4i, allocator<Vec4i>> const SourceHierarchy, int const Number_Threshold)
 {
 	vector<Point> approxContours;
@@ -44,12 +44,14 @@ int InterestContour(vector<vector<Point>> const SourceContours, vector<Vec4i, al
 	double area = 0, maxArea = 0;
 	for (index = 0; index < (int)SourceContours.size(); index++)
 	{
-		area = contourArea(SourceContours.at(index));
-		if (area > maxArea && contoursNumber(SourceHierarchy, index, 1) >= Number_Threshold)
+		vector<Point> convexhull;
+		convexHull(SourceContours.at(index), convexhull);
+		area = contourArea(convexhull);
+		if (area > maxArea)//&& contoursNumber(SourceHierarchy, index, 1) >= Number_Threshold)
 		{
 			//多边形拟合
-			approxPolyDP(SourceContours.at(index), approxContours, arcLength(SourceContours.at(index), true)*0.02, true);
-			if (approxContours.size() == 4 && isContourConvex(approxContours))
+			approxPolyDP(convexhull, approxContours, arcLength(SourceContours.at(index), true)*0.02, true);
+			if (approxContours.size() == 4)//&& isContourConvex(approxContours))
 			{
 				maxArea = area;
 				maxIndex = index;

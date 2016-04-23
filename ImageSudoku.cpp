@@ -9,22 +9,25 @@ using namespace cv;
 int _tmain(int argc, _TCHAR* argv[])
 {
 	string fileName;
-	Mat image;
+	Mat image, image0;
 
 	//cout << "Please input path and name of the image file:" << endl;
 	//cin >> filename;
-	fileName = "testimage3.png";
-	image = imread(fileName, 0);
+	fileName = "testimage3.png";//"D:\\sudopic\\pic4.jpg";
+	image0 = imread(fileName, 0);
 
-	if (image.empty())
+	if (image0.empty())
 	{
 		cout << "Can't open the file." << endl;
+		system("pause");
 		return 0;
 	}
-
+	resize(image0, image, Size(1200, (int)(image0.cols * 1200) / image0.rows), 0, 0, INTER_CUBIC);
 	//显示原始灰度图像
 	namedWindow("原始图像");
-	imshow("原始图像",image);
+	imshow("原始图像", image);
+	waitKey();
+	destroyAllWindows();
 
 	//寻找网格区域
 	Mat targetImage;
@@ -33,7 +36,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	//显示寻找到的区域
 	namedWindow("ROI");
 	imshow("ROI", targetImage);
-	/*
+	waitKey();
+	destroyAllWindows();
+
 	vector<Mat> splitedImage = splitImage(targetImage);
 	for (int ii = 0; ii < 81; ii++)
 	{
@@ -42,7 +47,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		waitKey();
 		destroyWindow("splitedImage");
 	}
-*/
-	waitKey();
+
 	return 0;
 }
