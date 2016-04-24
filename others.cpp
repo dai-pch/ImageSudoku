@@ -42,7 +42,7 @@ int InterestContour(vector<vector<Point>> const SourceContours, vector<Vec4i, al
 	int index = 0; //hierarchy.at(0)(2);
 	int maxIndex = -1;
 	double area = 0, maxArea = 0;
-	for (index = 0; index < (int)SourceContours.size(); index++)
+	for (index = 0; index < SourceContours.size(); index++)
 	{
 		vector<Point> convexhull;
 		convexHull(SourceContours.at(index), convexhull);

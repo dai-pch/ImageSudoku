@@ -13,7 +13,8 @@
 
 
 // TODO:  在此处引用程序需要的其他头文件
-#include <iostream>  
+#include <iostream> 
+#include <fstream>
 #include <string>
 #include <math.h>
 //#include <error>
@@ -25,3 +26,13 @@
 #include "others.h"
 #include "preproc.h"
 #include "split.h"
+
+#include "lib\bpnnlib\Bpnnlib.h"
+#include "lib\sudokulib\sudokulib.h"
+#ifdef _DEBUG
+#pragma comment(lib, "./lib/bpnnlib/debug/Bpnnlib.lib")
+#pragma comment(lib, "./lib/sudokulib/debug/sudokulib.lib")
+#else
+#pragma comment(lib, "./lib/bpnnlib/release/Bpnnlib.lib")
+#pragma comment(lib, "./lib/sudokulib/release/sudokulib.lib")
+#endif
