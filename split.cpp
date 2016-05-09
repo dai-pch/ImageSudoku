@@ -7,7 +7,7 @@ vector<Mat> splitImage(Mat const SourceImage)
 {
 	//二值化
 	Mat binaryImage;
-	threshold(SourceImage(Rect(TRANSFORMED_MARGIN, TRANSFORMED_MARGIN, TRANSFORMED_SIZE, TRANSFORMED_SIZE)), binaryImage, 191, 255, CV_THRESH_OTSU | CV_THRESH_BINARY_INV);
+	threshold(SourceImage, binaryImage, 191, 255, CV_THRESH_OTSU | CV_THRESH_BINARY_INV);
 
 	//中值滤波
 	Mat medianImage;
@@ -15,6 +15,7 @@ vector<Mat> splitImage(Mat const SourceImage)
 
 	//形态学腐蚀
 	//morphologyEx(medianImage, binaryImage, MORPH_ERODE, getStructuringElement(MORPH_RECT, Size(3, 3)));
+
 	binaryImage = medianImage;
 
 	/*//显示二值化图像

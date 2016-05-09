@@ -13,8 +13,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//cout << "Please input path and name of the image file:" << endl;
 	//cin >> filename;
-	fileName = "testimage3.png";//"D:\\sudopic\\pic4.jpg";
-	image0 = imread(fileName, 0);
+	fileName = "testimage3.png";//"D:\\sudopic\\pic6.jpg";
+	image0 = imread(fileName, IMREAD_GRAYSCALE);
 
 	if (image0.empty())
 	{
@@ -22,8 +22,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		system("pause");
 		return 0;
 	}
-	resize(image0, image, Size(1200, (int)(image0.cols * 1200) / image0.rows), 0, 0, INTER_CUBIC);
-	image0.release();
+	double ratio;
+	ratio = image0.cols / 1000.0;
+
+ 	resize(image0, image, Size(), 1/ratio, 1/ratio, INTER_CUBIC);
+	//image0.release();
 	//显示原始灰度图像
 	namedWindow("原始图像");
 	imshow("原始图像", image);
@@ -31,8 +34,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	destroyAllWindows();
 
 	//寻找网格区域
-	Mat targetImage;
-	targetImage = FindROI(image);
+ 	Point2f vertices[4];
+	FindROI(image, vertices);
+	for (int ii = 0; ii < 4; ii++)
+		vertices[ii] *= ratio;
+
+	//仿射变换
+	Point2f transedVertices[4];
+	transedVertices[0] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_MARGIN);
+	transedVertices[1] = Point2f(TRANSFORMED_SIZE - TRANSFORMED_MARGIN + 1, TRANSFORMED_MARGIN);
+	transedVertices[2] = Point2f(TRANSFORMED_SIZE - TRANSFORMED_MARGIN + 1, TRANSFORMED_SIZE - TRANSFORMED_MARGIN + 1);
+	transedVertices[3] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_SIZE - TRANSFORMED_MARGIN + 1);
+
+	Mat transformMatrix = getPerspectiveTransform(vertices, transedVertices);
+	Mat targetImage = Mat::zeros(Size(TRANSFORMED_SIZE, TRANSFORMED_SIZE), CV_8UC1);
+	warpPerspective(image0, targetImage, transformMatrix, targetImage.size(), INTER_CUBIC);
+
 
 	//显示寻找到的区域
 	namedWindow("ROI");
@@ -42,17 +59,23 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	vector<Mat> splitedImage = splitImage(targetImage);
 	
-	/*//显示分割出来的图像
+	//显示分割出来的图像
+	char name[] = "D:\\sudopic\\split8-00.png";
 	for (int ii = 0; ii < 81; ii++)
 	{
+		(char)((ii + 1) / 10 + 48);
+		name[18] = (char)((ii+1) / 10 + 48);
+		name[19] = (char)((ii+1) % 10 + 48);
+		imwrite(name, splitedImage.at(ii));
+		/*
 		namedWindow("splitedImage");
 		imshow("splitedImage", splitedImage.at(ii));
 		waitKey();
-		destroyWindow("splitedImage");
-	}*/
+		destroyWindow("splitedImage");*/
+	}
 
 	//识别，生成矩阵
-	int sudoku[81];
+	int sudoku[81], sudokures[81];
 	//初始化神经网络
 	CreateInfo info;
 	info.__numHiddenLayers = 1;
@@ -63,7 +86,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	ifstream fs("log-train0.txt");
 	bp.Import(fs);
 
-	int empnum = splitedImage[0].rows * splitedImage[0].cols / 10.0;
+	int empnum = (int)(splitedImage[0].rows * splitedImage[0].cols / 8.0);
 	for (int ii = 0; ii < 81; ii++)
 	{
 		//如果是空格
@@ -104,7 +127,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	Sudoku su(sudoku);
-	int flag = su.solve(sudoku);
+	int flag = su.solve(sudokures);
 	//显示答案
 	if (!flag)
 		cout << "There is no solutions." << endl;
@@ -113,7 +136,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cout << "Solution is:" << endl;
 		for (int ii = 0; ii < 81; ii++)
 		{
-			cout << sudoku[ii] << " ";
+			cout << sudokures[ii] << " ";
 			if (ii % 9 == 8)
 				cout << endl;
 		}

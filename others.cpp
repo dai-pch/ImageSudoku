@@ -39,7 +39,7 @@ int contoursNumber(vector<Vec4i, allocator<Vec4i>> const SourceHierarchy, int In
 int InterestContour(vector<vector<Point>> const SourceContours, vector<Vec4i, allocator<Vec4i>> const SourceHierarchy, int const Number_Threshold)
 {
 	vector<Point> approxContours;
-	int index = 0; //hierarchy.at(0)(2);
+	unsigned int index = 0; //hierarchy.at(0)(2);
 	int maxIndex = -1;
 	double area = 0, maxArea = 0;
 	for (index = 0; index < SourceContours.size(); index++)

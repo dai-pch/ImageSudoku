@@ -3,31 +3,31 @@
 using namespace cv;
 using namespace std;
 
-Mat FindROI(Mat const SourceImage)
+int FindROI(Mat const SourceImage, Point2f *vertices)
 {
-	//形态学底帽均匀背景
+	Mat tempImage1;
 	Mat targetImage;
+	//形态学底帽均匀背景
 	int eigenlen = SourceImage.cols / 70;
 	morphologyEx(SourceImage, targetImage, MORPH_BLACKHAT, getStructuringElement(MORPH_ELLIPSE, Size(eigenlen, eigenlen)));
 
-	//二值化
-	Mat binaryImage;
-	threshold(targetImage, binaryImage, 191, 255, CV_THRESH_OTSU);
-
 	//形态学膨胀运算
-	morphologyEx(binaryImage, targetImage, MORPH_DILATE, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+	morphologyEx(targetImage, tempImage1, MORPH_DILATE, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 
-	/*//显示二值化和形态学膨胀图像
-	namedWindow("二值化图像", WINDOW_NORMAL);
-	imshow("二值化图像", binaryImage);
-	namedWindow("膨胀图像", WINDOW_NORMAL);
+	//二值化
+	threshold(tempImage1, targetImage, 191, 255, CV_THRESH_OTSU);
+
+	//显示二值化和形态学膨胀图像
+	/*namedWindow("二值化图像", WINDOW_NORMAL);
+	imshow("二值化图像", binaryImage);*/
+	/*namedWindow("膨胀图像", WINDOW_NORMAL);
 	imshow("膨胀图像", targetImage);
 	waitKey();*/
 
 	//检测轮廓
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
-	findContours(targetImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(FIND_ROI_CUT, FIND_ROI_CUT));
+	findContours(targetImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
 	/*//绘制轮廓
 	Scalar color(0, 255, 0);
@@ -43,8 +43,7 @@ Mat FindROI(Mat const SourceImage)
 
 
 	//寻找最大面积的四边形元素
-	int index = 0; //hierarchy.at(0)(2);
-	index = InterestContour(contours, hierarchy, 75);
+	int index = InterestContour(contours, hierarchy, 75);
 	if (index < 0)
 	{
 		throw logic_error("Can't find right contours.");
@@ -71,38 +70,31 @@ Mat FindROI(Mat const SourceImage)
 	index = ii;
 	}
 	}*/
-	Point2f vertices[4];
-	vertices[0] = approxContours.at(0) - Point(FIND_ROI_CUT - TRANSFORMED_CUT, FIND_ROI_CUT - TRANSFORMED_CUT);
-	vertices[1] = approxContours.at(1) - Point(FIND_ROI_CUT + TRANSFORMED_CUT, FIND_ROI_CUT - TRANSFORMED_CUT);
-	vertices[2] = approxContours.at(2) - Point(FIND_ROI_CUT + TRANSFORMED_CUT, FIND_ROI_CUT + TRANSFORMED_CUT);
-	vertices[3] = approxContours.at(3) - Point(FIND_ROI_CUT - TRANSFORMED_CUT, FIND_ROI_CUT + TRANSFORMED_CUT);
+	vertices[0] = approxContours.at(0);// -Point(FIND_ROI_CUT, FIND_ROI_CUT);
+	vertices[1] = approxContours.at(1);// - Point(FIND_ROI_CUT, FIND_ROI_CUT);
+	vertices[2] = approxContours.at(2);// - Point(FIND_ROI_CUT, FIND_ROI_CUT);
+	vertices[3] = approxContours.at(3);// - Point(FIND_ROI_CUT, FIND_ROI_CUT);
 
-	/*
-	//画出轮廓
-	Mat contoursImage = Mat::zeros(binaryImage.size(), CV_8UC3);
+	
+	/*//画出轮廓
+	Mat blimg[3];
+	blimg[0] = SourceImage;
+	blimg[1] = SourceImage;
+	blimg[2] = SourceImage;
+	Mat contoursImage = Mat::zeros(targetImage.size(), CV_8UC3);
+	merge(blimg, 3, contoursImage);
 	//drawContours(contoursImage, contours, maxIndex, Scalar(128, 255, 255), 1, LINE_AA, hierarchy, 0);
 	for (int i = 0; i < 4; i++)
-	line(contoursImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
+		line(contoursImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
 	//显示轮廓
-	namedWindow("轮廓检测");
+	namedWindow("轮廓检测", CV_WINDOW_NORMAL);
 	imshow("轮廓检测", contoursImage);
-	waitKey();
-	*/
+	waitKey();*/
 
-	//仿射变换
-	Point2f transedVertices[4];
-	transedVertices[0] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_MARGIN);
-	transedVertices[1] = Point2f(TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1, TRANSFORMED_MARGIN);
-	transedVertices[2] = Point2f(TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1, TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1);
-	transedVertices[3] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_SIZE + TRANSFORMED_MARGIN - 1);
-
-	Mat transformMatrix = getPerspectiveTransform(vertices, transedVertices);
-	Mat warpedImage = Mat::zeros(Size(TRANSFORMED_SIZE + 2 * TRANSFORMED_MARGIN, TRANSFORMED_SIZE + 2 * TRANSFORMED_MARGIN), CV_8UC1);
-	warpPerspective(SourceImage, warpedImage, transformMatrix, warpedImage.size(), INTER_CUBIC);
-
-	return warpedImage;
+	return 0;
 }
 
+//从开始时针排序
 void SortVertex(vector<Point> &SourceVertex)
 {
 	double center_x = 0, center_y = 0;
