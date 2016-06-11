@@ -9,12 +9,12 @@ using namespace cv;
 int _tmain(int argc, _TCHAR* argv[])
 {
 	string fileName;
-	Mat image, image0;
+	Mat image_gray, image, image0;
 
 	//cout << "Please input path and name of the image file:" << endl;
 	//cin >> filename;
-	fileName = "testimage3.png";//"D:\\sudopic\\pic6.jpg";
-	image0 = imread(fileName, IMREAD_GRAYSCALE);
+	fileName = "D:\\sudopic\\pic6.jpg"; //"testimage3.png";
+	image0 = imread(fileName, IMREAD_COLOR);
 
 	if (image0.empty())
 	{
@@ -23,9 +23,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 0;
 	}
 	double ratio;
-	ratio = image0.cols / 1000.0;
+	ratio = image0.cols / 800.0;
 
- 	resize(image0, image, Size(), 1/ratio, 1/ratio, INTER_CUBIC);
+	cvtColor(image0, image_gray, CV_RGB2GRAY);
+	resize(image_gray, image, Size(), 1 / ratio, 1 / ratio, INTER_CUBIC);
+
 	//image0.release();
 	//显示原始灰度图像
 	namedWindow("原始图像");
@@ -34,7 +36,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	destroyAllWindows();
 
 	//寻找网格区域
- 	Point2f vertices[4];
+	Point2f vertices[4];
 	FindROI(image, vertices);
 	for (int ii = 0; ii < 4; ii++)
 		vertices[ii] *= ratio;
@@ -46,33 +48,33 @@ int _tmain(int argc, _TCHAR* argv[])
 	transedVertices[2] = Point2f(TRANSFORMED_SIZE - TRANSFORMED_MARGIN + 1, TRANSFORMED_SIZE - TRANSFORMED_MARGIN + 1);
 	transedVertices[3] = Point2f(TRANSFORMED_MARGIN, TRANSFORMED_SIZE - TRANSFORMED_MARGIN + 1);
 
-	Mat transformMatrix = getPerspectiveTransform(vertices, transedVertices);
+ 	Mat transformMatrix = getPerspectiveTransform(vertices, transedVertices);
 	Mat targetImage = Mat::zeros(Size(TRANSFORMED_SIZE, TRANSFORMED_SIZE), CV_8UC1);
-	warpPerspective(image0, targetImage, transformMatrix, targetImage.size(), INTER_CUBIC);
+	warpPerspective(image_gray, targetImage, transformMatrix, targetImage.size(), INTER_CUBIC);
 
 
 	//显示寻找到的区域
 	namedWindow("ROI");
 	imshow("ROI", targetImage);
 	waitKey();
-	//destroyAllWindows();
+	destroyAllWindows();
 
 	vector<Mat> splitedImage = splitImage(targetImage);
-	
+
 	//显示分割出来的图像
-	char name[] = "D:\\sudopic\\split8-00.png";
-	for (int ii = 0; ii < 81; ii++)
+	//char name[] = "D:\\sudopic\\split8-00.png";
+	/*for (int ii = 0; ii < 81; ii++)
 	{
-		(char)((ii + 1) / 10 + 48);
-		name[18] = (char)((ii+1) / 10 + 48);
-		name[19] = (char)((ii+1) % 10 + 48);
-		imwrite(name, splitedImage.at(ii));
-		/*
-		namedWindow("splitedImage");
-		imshow("splitedImage", splitedImage.at(ii));
-		waitKey();
-		destroyWindow("splitedImage");*/
-	}
+	(char)((ii + 1) / 10 + 48);
+	name[18] = (char)((ii+1) / 10 + 48);
+	name[19] = (char)((ii+1) % 10 + 48);
+	imwrite(name, splitedImage.at(ii));
+
+	namedWindow("splitedImage");
+	imshow("splitedImage", splitedImage.at(ii));
+	waitKey();
+	destroyWindow("splitedImage");
+	}*/
 
 	//识别，生成矩阵
 	int sudoku[81], sudokures[81];
@@ -109,7 +111,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				if (temp(jj) > max)
 				{
 					max = temp(jj);
-					sudoku[ii] = jj+1;
+					sudoku[ii] = jj + 1;
 				}
 			}
 		}
@@ -127,9 +129,63 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	Sudoku su(sudoku);
-	int flag = su.solve(sudokures);
+	int success = su.solve(sudokures);
+
 	//显示答案
-	if (!flag)
+	//读入标准图片
+	Mat numberImage[9];
+	char picName[100] = ".\\pic\\1-0.bmp";
+	for (int ii = 0; ii < 9; ii++)
+	{
+		picName[8] = ii + 49;
+		numberImage[ii] = imread(picName, IMREAD_GRAYSCALE);
+		//cout << numberImage[ii];
+		/*imshow("1", numberImage[ii]);
+		waitKey();*/
+	}
+	//排列成一幅图片
+	Mat resultImage = Mat::zeros(Size(150 * 9, 150 * 9), CV_8U);
+	//cout << resultImage;
+	if (success)
+	{
+		for (int ii = 0; ii < 9; ii++)
+		{
+			for (int jj = 0; jj < 9; jj++)
+			{
+				if (sudoku[9 * ii + jj] == 0)
+				{
+					Mat imageROI = resultImage(Rect(150 * jj, 150 * ii, 150, 150));
+					imageROI += numberImage[sudokures[9 * ii + jj] - 1];
+				}
+			}
+		}
+	}
+	/*imshow("2", resultImage);
+	waitKey();*/
+	//仿射变换
+	transedVertices[0] = Point2f(0, 0);
+	transedVertices[1] = Point2f(1350, 0);
+	transedVertices[2] = Point2f(1350, 1350);
+	transedVertices[3] = Point2f(0, 1350);
+	transformMatrix = getPerspectiveTransform(transedVertices, vertices);
+	cout << transformMatrix;
+
+	Mat subedImage = Mat::zeros(image_gray.size(), CV_8UC1);
+	warpPerspective(resultImage, subedImage, transformMatrix, subedImage.size(), INTER_CUBIC);
+
+	//将结果图像加到原图像上
+	Mat channelsImage[3];
+	split(image0, channelsImage);
+	for (int ii = 0; ii < 3; ii++)
+		channelsImage[ii] -= subedImage;
+	merge(channelsImage, 3, image0);
+
+	imwrite("res.jpg", image0);
+	imshow("2", image0);
+	waitKey();
+
+	//输出答案
+	if (!success)
 		cout << "There is no solutions." << endl;
 	else
 	{
