@@ -65,20 +65,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	//处理分割出来的图像
 	//char name[] = "D:\\sudopic\\split8-00.png";
-	for (int ii = 0; ii < 81; ii++)
-	{
-		//写文件
-		/*(char)((ii + 1) / 10 + 48);
+	/*for (int ii = 0; ii < 81; ii++)
+	{*/
+		/*//写文件
+		(char)((ii + 1) / 10 + 48);
 		name[18] = (char)((ii+1) / 10 + 48);
 		name[19] = (char)((ii+1) % 10 + 48);
 		imwrite(name, splitedImage.at(ii));*/
 
-		//显示
-		/*namedWindow("splitedImage");
+		/*//显示
+		namedWindow("splitedImage");
 		imshow("splitedImage", splitedImage.at(ii));
 		waitKey();
-		destroyWindow("splitedImage");*/
-	}
+		destroyWindow("splitedImage");
+	}*/
 
 	//识别，生成矩阵
 	int sudoku[81];
