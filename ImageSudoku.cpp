@@ -10,10 +10,12 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	string fileName;
 	Mat image_gray, image, image0;
-
+	
 	//cout << "Please input path and name of the image file:" << endl;
 	//cin >> filename;
-	fileName = "D:\\sudopic\\pic6.jpg"; //"testimage3.png";
+	fileName = "D:\\sudopic\\pic1.jpg"; //"testimage.png";//
+	fileName[14] = NUM + 48;
+	cout << fileName;
 	image0 = imread(fileName, IMREAD_COLOR);
 
 	if (image0.empty())
@@ -57,67 +59,31 @@ int _tmain(int argc, _TCHAR* argv[])
 	namedWindow("ROI");
 	imshow("ROI", targetImage);
 	waitKey();
-	destroyAllWindows();
+	//destroyAllWindows();
 
 	vector<Mat> splitedImage = splitImage(targetImage);
-
-	//显示分割出来的图像
+	
+	//处理分割出来的图像
 	//char name[] = "D:\\sudopic\\split8-00.png";
-	/*for (int ii = 0; ii < 81; ii++)
-	{
-	(char)((ii + 1) / 10 + 48);
-	name[18] = (char)((ii+1) / 10 + 48);
-	name[19] = (char)((ii+1) % 10 + 48);
-	imwrite(name, splitedImage.at(ii));
-
-	namedWindow("splitedImage");
-	imshow("splitedImage", splitedImage.at(ii));
-	waitKey();
-	destroyWindow("splitedImage");
-	}*/
-
-	//识别，生成矩阵
-	int sudoku[81], sudokures[81];
-	//初始化神经网络
-	CreateInfo info;
-	info.__numHiddenLayers = 1;
-	info.__numInputsNodes = 900;
-	info.__numLayerNodes.push_back(10);
-	info.__numLayerNodes.push_back(9);
-	Bpnn &bp = *new Bpnn(info);
-	ifstream fs("log-train0.txt");
-	bp.Import(fs);
-
-	int empnum = (int)(splitedImage[0].rows * splitedImage[0].cols / 8.0);
 	for (int ii = 0; ii < 81; ii++)
 	{
-		//如果是空格
-		if (sum(splitedImage[ii])(0) / 255 < empnum)
-			sudoku[ii] = 0;
-		else //否则用神经网络识别
-		{
-			Vecd temp;
-			//变为double
-			splitedImage[ii].convertTo(temp, CV_64F, 1.0 / 255, 0);
-			//减采样
-			resize(temp, temp, Size(30, 30), 0, 0, INTER_CUBIC);
-			//变为列向量
-			temp = temp.reshape(1, 900);
+		//写文件
+		/*(char)((ii + 1) / 10 + 48);
+		name[18] = (char)((ii+1) / 10 + 48);
+		name[19] = (char)((ii+1) % 10 + 48);
+		imwrite(name, splitedImage.at(ii));*/
 
-			bp.transform(temp);
-			double max = 0;
-			for (int jj = 0; jj < 9; jj++)
-			{
-				if (temp(jj) > max)
-				{
-					max = temp(jj);
-					sudoku[ii] = jj + 1;
-				}
-			}
-		}
+		//显示
+		/*namedWindow("splitedImage");
+		imshow("splitedImage", splitedImage.at(ii));
+		waitKey();
+		destroyWindow("splitedImage");*/
 	}
 
-	delete &bp;
+	//识别，生成矩阵
+	int sudoku[81];
+	RecognizeSudoku(sudoku, splitedImage);
+
 
 	//显示原数独
 	cout << "Sudoku is:" << endl;
@@ -128,64 +94,13 @@ int _tmain(int argc, _TCHAR* argv[])
 			cout << endl;
 	}
 
+	//解数独
+	int sudokures[81];
 	Sudoku su(sudoku);
 	int success = su.solve(sudokures);
 
-	//显示答案
-	//读入标准图片
-	Mat numberImage[9];
-	char picName[100] = ".\\pic\\1-0.bmp";
-	for (int ii = 0; ii < 9; ii++)
-	{
-		picName[8] = ii + 49;
-		numberImage[ii] = imread(picName, IMREAD_GRAYSCALE);
-		//cout << numberImage[ii];
-		/*imshow("1", numberImage[ii]);
-		waitKey();*/
-	}
-	//排列成一幅图片
-	Mat resultImage = Mat::zeros(Size(150 * 9, 150 * 9), CV_8U);
-	//cout << resultImage;
-	if (success)
-	{
-		for (int ii = 0; ii < 9; ii++)
-		{
-			for (int jj = 0; jj < 9; jj++)
-			{
-				if (sudoku[9 * ii + jj] == 0)
-				{
-					Mat imageROI = resultImage(Rect(150 * jj, 150 * ii, 150, 150));
-					imageROI += numberImage[sudokures[9 * ii + jj] - 1];
-				}
-			}
-		}
-	}
-	/*imshow("2", resultImage);
-	waitKey();*/
-	//仿射变换
-	transedVertices[0] = Point2f(0, 0);
-	transedVertices[1] = Point2f(1350, 0);
-	transedVertices[2] = Point2f(1350, 1350);
-	transedVertices[3] = Point2f(0, 1350);
-	transformMatrix = getPerspectiveTransform(transedVertices, vertices);
-	cout << transformMatrix;
-
-	Mat subedImage = Mat::zeros(image_gray.size(), CV_8UC1);
-	warpPerspective(resultImage, subedImage, transformMatrix, subedImage.size(), INTER_CUBIC);
-
-	//将结果图像加到原图像上
-	Mat channelsImage[3];
-	split(image0, channelsImage);
-	for (int ii = 0; ii < 3; ii++)
-		channelsImage[ii] -= subedImage;
-	merge(channelsImage, 3, image0);
-
-	imwrite("res.jpg", image0);
-	imshow("2", image0);
-	waitKey();
-
 	//输出答案
-	if (!success)
+	if (!success) //如果不成功
 		cout << "There is no solutions." << endl;
 	else
 	{
@@ -196,7 +111,63 @@ int _tmain(int argc, _TCHAR* argv[])
 			if (ii % 9 == 8)
 				cout << endl;
 		}
+
+		//显示答案
+		//读入标准图片
+		Mat numberImage[9];
+		char picName[100] = ".\\pic\\1-0.bmp";
+		for (int ii = 0; ii < 9; ii++)
+		{
+			picName[8] = ii + 49;
+			numberImage[ii] = imread(picName, IMREAD_GRAYSCALE);
+			//cout << numberImage[ii];
+			/*imshow("1", numberImage[ii]);
+			waitKey();*/
+		}
+		//排列成一幅图片
+		Mat resultImage = Mat::zeros(Size(150 * 9, 150 * 9), CV_8U);
+		//cout << resultImage;
+		if (success)
+		{
+			for (int ii = 0; ii < 9; ii++)
+			{
+				for (int jj = 0; jj < 9; jj++)
+				{
+					if (sudoku[9 * ii + jj] == 0)
+					{
+						Mat imageROI = resultImage(Rect(150 * jj, 150 * ii, 150, 150));
+						imageROI += numberImage[sudokures[9 * ii + jj] - 1];
+					}
+				}
+			}
+		}
+		/*imshow("2", resultImage);
+		waitKey();*/
+		//仿射变换
+		transedVertices[0] = Point2f(0, 0);
+		transedVertices[1] = Point2f(1350, 0);
+		transedVertices[2] = Point2f(1350, 1350);
+		transedVertices[3] = Point2f(0, 1350);
+		transformMatrix = getPerspectiveTransform(transedVertices, vertices);
+		//cout << transformMatrix;
+
+		Mat subedImage = Mat::zeros(image_gray.size(), CV_8UC1);
+		warpPerspective(resultImage, subedImage, transformMatrix, subedImage.size(), INTER_CUBIC);
+
+		//将结果图像加到原图像上
+		Mat channelsImage[3];
+		split(image0, channelsImage);
+		for (int ii = 0; ii < 3; ii++)
+			channelsImage[ii] -= subedImage;
+		merge(channelsImage, 3, image0);
+
+		//imwrite("res.jpg", image0);
+		imshow("2", image0);
+		waitKey();
+		destroyAllWindows();
 	}
+
+	//system("pause");
 	waitKey();
 
 	return 0;

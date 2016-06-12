@@ -13,13 +13,13 @@ vector<Mat> splitImage(Mat const SourceImage)
 	Mat medianImage;
 	medianBlur(binaryImage, medianImage, 3);
 
-	//形态学腐蚀
-	//morphologyEx(medianImage, binaryImage, MORPH_ERODE, getStructuringElement(MORPH_RECT, Size(3, 3)));
+	//形态学
+	//morphologyEx(medianImage, binaryImage, MORPH_CLOSE, getStructuringElement(MORPH_RECT, Size(10, 10)));
 
 	binaryImage = medianImage;
 
-	/*//显示二值化图像
-	namedWindow("二值化图像");
+	//显示二值化图像
+	/*namedWindow("二值化图像");
 	imshow("二值化图像", binaryImage);
 	waitKey();*/
 

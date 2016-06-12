@@ -23,12 +23,14 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include "lib\bpnnlib\Bpnnlib.h"
+#include "lib\sudokulib\sudokulib.h"
+
 #include "others.h"
 #include "preproc.h"
 #include "split.h"
+#include "recognize.h"
 
-#include "lib\bpnnlib\Bpnnlib.h"
-#include "lib\sudokulib\sudokulib.h"
 #ifdef _DEBUG
 #pragma comment(lib, "./lib/bpnnlib/debug/Bpnnlib.lib")
 #pragma comment(lib, "./lib/sudokulib/debug/sudokulib.lib")
@@ -36,3 +38,5 @@
 #pragma comment(lib, "./lib/bpnnlib/release/Bpnnlib.lib")
 #pragma comment(lib, "./lib/sudokulib/release/sudokulib.lib")
 #endif
+
+#define NUM 2
