@@ -42,23 +42,23 @@ vector<Mat> splitImage(Mat const SourceImage)
 
 			/*imshow("00", temp);
 			waitKey();*/
-			if (ii == 6 && jj == 6)
+			/*if (ii == 6 && jj == 6)
 			{
 			imshow("00", temp);
 			waitKey();
-			}
+			}*/
 
 			//¡¨Õ®”ÚºÏ≤‚
  			vector<vector<Point>> contours;
 			//vector<Vec4i> hierarchy;
 			findContours(temp, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);//CHAIN_APPROX_TC89_L1);//
-			double x2, y2, xm2 = 90000, ym2 = 90000;//, xm = TRANSFORMED_SIZE / 18 - SPLIT_CUT, ym = TRANSFORMED_SIZE / 18 - SPLIT_CUT;
+			double m2 = 0, m2m = 90000;//, xm = TRANSFORMED_SIZE / 18 - SPLIT_CUT, ym = TRANSFORMED_SIZE / 18 - SPLIT_CUT;
 			int index = -1;
 			temp = Mat::zeros((TRANSFORMED_SIZE / 9 - 2 * SPLIT_CUT) * 2, (TRANSFORMED_SIZE / 9 - 2 * SPLIT_CUT) * 2, CV_8UC1);
 			Rect roi(TRANSFORMED_SIZE / 18 - SPLIT_CUT, TRANSFORMED_SIZE / 18 - SPLIT_CUT, 0, 0);
 			for (int jj = 0; jj < contours.size(); jj++)
 			{
-				Moments mom = moments(contours[jj]);
+				/*Moments mom = moments(contours[jj]);
 				if (mom.m00 > 0)
 				{
 					x2 = (mom.m20 - 2 * (TRANSFORMED_SIZE / 18 - SPLIT_CUT) * mom.m10) / mom.m00 + (TRANSFORMED_SIZE / 18 - SPLIT_CUT)*(TRANSFORMED_SIZE / 18 - SPLIT_CUT);
@@ -68,13 +68,21 @@ vector<Mat> splitImage(Mat const SourceImage)
 				{
 					x2 = 90000;
 					y2 = 90000;
+				}*/
+				vector<Point> &certainContours = contours[jj];
+				int kk = 0;
+				for (; kk < certainContours.size(); kk++)
+				{
+					m2 += max(pow(certainContours[kk].x - TRANSFORMED_SIZE / 18 + SPLIT_CUT, 2), 
+						pow(certainContours[kk].y - TRANSFORMED_SIZE / 18 + SPLIT_CUT, 2));
 				}
+				m2 /= kk;
+
 				//cout << ii << ":" << x << ", " << y << endl;
 				//cout << sqrt(x2 + y2) << endl;
-				if (((sqrt(x2 + y2) < TRANSFORMED_SIZE / 18 - SPLIT_CUT - 4)))// && (xm2 + ym2) > (x2 + y2))))
+				if (((sqrt(m2) < TRANSFORMED_SIZE / 18 - SPLIT_CUT - 5)))// && (xm2 + ym2) > (x2 + y2))))
 				{ 
-					xm2 = x2;
-					ym2 = y2;
+					m2m = m2;
 					//xm = mom.m10 / mom.m00 - TRANSFORMED_SIZE / 18 + SPLIT_CUT;
 					//ym = mom.m01 / mom.m00 - TRANSFORMED_SIZE / 18 + SPLIT_CUT;
 					index = jj;
