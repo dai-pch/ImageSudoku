@@ -33,7 +33,8 @@ int RecognizeSudoku(int* Result, vector<Mat> const Image)
 		//写文件
 		char name[] = "D:\\sudopic\\new\\split01-00.png";
 		(char)((ii + 1) / 10 + 48);
-		name[21] = NUM + 48;
+		name[20] = NUM / 10 + 48;
+		name[21] = NUM % 10 + 48;
 		name[23] = (char)((ii+1) / 10 + 48);
 		name[24] = (char)((ii+1) % 10 + 48);
 		imwrite(name, temp);
@@ -44,13 +45,14 @@ int RecognizeSudoku(int* Result, vector<Mat> const Image)
 			cout << temp << endl;*/
 		//cout << projection.reshape(30, 2) << endl;
 		bp.transform(projection);
+		//cout << projection << endl;
 		double max = 0;
 		for (int jj = 0; jj < 10; jj++)
 		{
 			if (projection(jj) > max)
 			{
 				max = projection(jj);
-				Result[ii] = jj;
+				Result[ii] = (jj + 1)%10;
 			}
 		}
 	}
@@ -66,22 +68,24 @@ int Projection(Vecd &Result, Mat const Image)
 	Result = Mat::zeros(60, 1, CV_64FC1);
 
 	//cout << Image << endl;
-	temp = (Image + 127 - 50) / 255;
+	temp = Image;
 	//cout << temp << endl;
 
 	int xlength = temp.cols, ylength = temp.rows;
 
 	for (unsigned int ii = 0; ii < xlength; ii++)
 	{
-		tempres(ii) = sum(temp.col(ii))[0];
+		tempres(ii) = sum(temp.col(ii))[0]/255.0;
 	}
 	for (unsigned int ii = 0; ii < ylength; ii++)
 	{
-		tempres(ii + xlength) = sum(temp.row(ii))[0];
+		tempres(ii + xlength) = sum(temp.row(ii))[0]/255.0;
 	}
 
 	//cout << tempres.reshape(xlength, 2) << endl;
 	
+	tempres.copyTo(Result);
+
 	/*//中心化x
 	int begin = 0, maxlength = 0, length = 0;
 	for (int ii = 0; ii < xlength; ii++)

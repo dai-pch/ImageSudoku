@@ -13,9 +13,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	//cout << "Please input path and name of the image file:" << endl;
 	//cin >> filename;
-	fileName = "D:\\sudopic\\pic1.jpg"; //"testimage.png";//
-	fileName[14] = NUM + 48;
-	cout << fileName;
+	fileName = "D:\\sudopic\\pic01.jpg"; //"testimage.png";//
+	fileName[14] = NUM / 10 + 48;
+	fileName[15] = NUM % 10 + 48;
+	cout << fileName << endl;
 	image0 = imread(fileName, IMREAD_COLOR);
 
 	if (image0.empty())
