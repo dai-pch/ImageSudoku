@@ -24,11 +24,13 @@ int RecognizeSudoku(int* Result, vector<Mat> const Image)
 		//减采样
 		resize(Image[ii], temp, Size(30, 30), 0, 0, INTER_LINEAR);
 
-		/*if (ii == 57)
+		/*if (ii == 75)
 		{
 			imshow("00", Image[ii]);
 			waitKey();
 		}*/
+		imshow("00", Image[ii]);
+		waitKey();
 
 		//写文件
 		char name[] = "D:\\sudopic\\new\\split01-00.png";
@@ -63,23 +65,23 @@ int RecognizeSudoku(int* Result, vector<Mat> const Image)
 
 int Projection(Vecd &Result, Mat const Image)
 {
-	Mat temp;
+	//Mat temp;
 	Vecd tempres(60, 1);
 	Result = Mat::zeros(60, 1, CV_64FC1);
 
 	//cout << Image << endl;
-	temp = Image;
+	//temp = Image;
 	//cout << temp << endl;
 
-	int xlength = temp.cols, ylength = temp.rows;
+	unsigned int xlength = Image.cols, ylength = Image.rows;
 
 	for (unsigned int ii = 0; ii < xlength; ii++)
 	{
-		tempres(ii) = sum(temp.col(ii))[0]/255.0;
+		tempres(ii) = sum(Image.col(ii))[0] / 255.0;
 	}
 	for (unsigned int ii = 0; ii < ylength; ii++)
 	{
-		tempres(ii + xlength) = sum(temp.row(ii))[0]/255.0;
+		tempres(ii + xlength) = sum(Image.row(ii))[0] / 255.0;
 	}
 
 	//cout << tempres.reshape(xlength, 2) << endl;

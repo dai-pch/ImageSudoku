@@ -53,7 +53,7 @@ int FindROI(Mat const SourceImage, Point2f *vertices)
 	vector<Point> approxContours;
 	vector<Point> temp;
 	convexHull(contours.at(index), temp);
-	approxPolyDP(temp, approxContours, arcLength(contours.at(index), true)*0.02, true);
+	approxPolyDP(temp, approxContours, arcLength(contours.at(index), true)*0.005, true);
 
 	//Ω«µ„≈≈–Ú
 	SortVertex(approxContours);
