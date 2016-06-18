@@ -39,4 +39,4 @@
 #pragma comment(lib, "./lib/sudokulib/release/sudokulib.lib")
 #endif
 
-#define NUM 2
+#define NUM 23

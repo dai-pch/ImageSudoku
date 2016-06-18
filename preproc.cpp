@@ -15,14 +15,15 @@ int FindROI(Mat const SourceImage, Point2f *vertices)
 	morphologyEx(targetImage, tempImage1, MORPH_DILATE, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 
 	//二值化
-	threshold(tempImage1, targetImage, 191, 255, CV_THRESH_OTSU);
+	threshold(tempImage1, targetImage, 191, 255, CV_THRESH_OTSU); //
 
+	//imwrite("pre_bin2.png", targetImage);
 	//显示二值化和形态学膨胀图像
-	/*namedWindow("二值化图像", WINDOW_NORMAL);
+	namedWindow("二值化图像");// , WINDOW_NORMAL);
 	imshow("二值化图像", targetImage);
-	namedWindow("膨胀图像", WINDOW_NORMAL);
+	namedWindow("膨胀图像");// , WINDOW_NORMAL);
 	imshow("膨胀图像", tempImage1);
-	waitKey();*/
+	waitKey();
 
 	//检测轮廓
 	vector<vector<Point>> contours;

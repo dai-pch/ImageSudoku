@@ -16,10 +16,10 @@ vector<Mat> splitImage(Mat const SourceImage)
 	//形态学
 	//morphologyEx(medianImage, binaryImage, MORPH_CLOSE, getStructuringElement(MORPH_RECT, Size(10, 10)));
 
-	/*//显示二值化图像
+	//显示二值化图像
 	namedWindow("二值化图像");
 	imshow("二值化图像", binaryImage);
-	waitKey();*/
+	waitKey();
 
 	vector<Mat> imageVec(81);
 	int width = TRANSFORMED_SIZE / 9 - 2 * SPLIT_CUT;
