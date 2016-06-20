@@ -19,11 +19,11 @@ int FindROI(Mat const SourceImage, Point2f *vertices)
 
 	//imwrite("pre_bin2.png", targetImage);
 	//显示二值化和形态学膨胀图像
-	namedWindow("二值化图像");// , WINDOW_NORMAL);
+	/*namedWindow("二值化图像");// , WINDOW_NORMAL);
 	imshow("二值化图像", targetImage);
 	namedWindow("膨胀图像");// , WINDOW_NORMAL);
 	imshow("膨胀图像", tempImage1);
-	waitKey();
+	waitKey();*/
 
 	//检测轮廓
 	vector<vector<Point>> contours;

@@ -158,18 +158,18 @@ int _tmain(int argc, _TCHAR* argv[])
 		//将结果图像加到原图像上
 		Mat channelsImage[3];
 		split(image0, channelsImage);
-		for (int ii = 0; ii < 3; ii++)
-			channelsImage[ii] -= subedImage;
+		channelsImage[0] -= subedImage;
+		channelsImage[1] -= subedImage;
+		channelsImage[2] += subedImage;
 		merge(channelsImage, 3, image0);
 
-		//imwrite("res.jpg", image0);
+		imwrite("res.jpg", image0);
 		imshow("2", image0);
 		waitKey();
 		destroyAllWindows();
 	}
 
-	//system("pause");
-	waitKey();
+	system("pause");
 
 	return 0;
 }

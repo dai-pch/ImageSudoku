@@ -8,17 +8,17 @@ int RecognizeSudoku(int* Result, vector<Mat> const Image)
 	//初始化神经网络
 	CreateInfo info;
 	info.__numHiddenLayers = 1;
-	info.__numInputsNodes = 60;
+	info.__numInputsNodes = 900;
 	info.__numLayerNodes.push_back(20);
 	info.__numLayerNodes.push_back(10);
 	Bpnn &bp = *new Bpnn(info);
-	ifstream fs("train1.txt");
+	ifstream fs("train3.txt");
 	bp.Import(fs);
 
 	for (int ii = 0; ii < 81; ii++)
 	{
 		//用神经网络识别
-		Vecd projection(60, 1);
+		Vecd projection(900, 1);
 		Mat temp;
 
 		//减采样
@@ -37,15 +37,27 @@ int RecognizeSudoku(int* Result, vector<Mat> const Image)
 		waitKey();*/
 
 		//写文件
-		char name[] = "D:\\sudopic\\new\\split01-00.png";
+		/*char name[] = "D:\\sudopic\\new\\split01-00.png";
 		(char)((ii + 1) / 10 + 48);
 		name[20] = NUM / 10 + 48;
 		name[21] = NUM % 10 + 48;
 		name[23] = (char)((ii+1) / 10 + 48);
 		name[24] = (char)((ii+1) % 10 + 48);
-		imwrite(name, temp);
+		imwrite(name, temp);*/
 
-		Projection(projection, temp);
+		//Projection(projection, temp);
+		//projection.release();
+		try{
+			temp.convertTo(projection, CV_64FC1, 1.0/255.0);
+			projection = projection.t();
+			projection = projection.reshape(1, 900);
+			
+			//cout << projection << endl;
+		}
+		catch (Exception &e)
+		{
+			cout << e.msg << endl;
+		}
 
 		/*if (ii < 9)
 			cout << projection.reshape(1,2) << endl;*/
