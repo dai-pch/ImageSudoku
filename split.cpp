@@ -5,9 +5,14 @@ using namespace std;
 
 vector<Mat> splitImage(Mat const SourceImage)
 {
+	Mat targetImage;
+	//形态学底帽均匀背景
+	int eigenlen = SourceImage.cols / 70;
+	morphologyEx(SourceImage, targetImage, MORPH_BLACKHAT, getStructuringElement(MORPH_ELLIPSE, Size(eigenlen, eigenlen)));
+
 	//二值化
 	Mat binaryImage;
-	threshold(SourceImage, binaryImage, 191, 255, CV_THRESH_OTSU | CV_THRESH_BINARY_INV);
+	threshold(targetImage, binaryImage, 191, 255, CV_THRESH_OTSU);// | CV_THRESH_BINARY_INV);
 
 	//中值滤波
 	Mat medianImage;
@@ -42,20 +47,20 @@ vector<Mat> splitImage(Mat const SourceImage)
 
 			/*imshow("00", temp);
 			waitKey();*/
-			/*if (ii == 5 && jj == 8)
+			/*if (ii == 5 && jj == 2)
 			{
-			imshow("00", temp);
-			waitKey();
+				imshow("00", temp);
+				waitKey();
 			}*/
 
 			//连通域检测
  			vector<vector<Point>> contours;
 			vector<Vec4i> hierarchy;
 			findContours(temp, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);//CHAIN_APPROX_TC89_L1);//
-			double m2 = 0, m2m = 90000;//, xm = TRANSFORMED_SIZE / 18 - SPLIT_CUT, ym = TRANSFORMED_SIZE / 18 - SPLIT_CUT;
+			double m2 = 0;// , m2m = 90000;//, xm = TRANSFORMED_SIZE / 18 - SPLIT_CUT, ym = TRANSFORMED_SIZE / 18 - SPLIT_CUT;
 			int flag = -1;
 			temp = Mat::zeros((TRANSFORMED_SIZE / 9 - 2 * SPLIT_CUT) * 2, (TRANSFORMED_SIZE / 9 - 2 * SPLIT_CUT) * 2, CV_8UC1);
-			Rect roi(TRANSFORMED_SIZE / 18 - SPLIT_CUT, TRANSFORMED_SIZE / 18 - SPLIT_CUT, 0, 0);
+			Rect roi;// (TRANSFORMED_SIZE / 18 - SPLIT_CUT, TRANSFORMED_SIZE / 18 - SPLIT_CUT, 0, 0);
 			for (unsigned int kk = 0; kk < contours.size(); kk++)
 			{
 				if (hierarchy[kk][3] != -1)
@@ -84,18 +89,21 @@ vector<Mat> splitImage(Mat const SourceImage)
 				//cout << sqrt(x2 + y2) << endl;
 				if (((sqrt(m2) < TRANSFORMED_SIZE / 18 - SPLIT_CUT - 7)))// && (xm2 + ym2) > (x2 + y2))))
 				{ 
-					m2m = m2;
+					//m2m = m2;
 					//xm = mom.m10 / mom.m00 - TRANSFORMED_SIZE / 18 + SPLIT_CUT;
 					//ym = mom.m01 / mom.m00 - TRANSFORMED_SIZE / 18 + SPLIT_CUT;
+					if (flag < 0)
+						roi = boundingRect(contours[kk]);
+					else
+						roi |= boundingRect(contours[kk]);
 					flag = kk;
-					roi |= boundingRect(contours[kk]);
 				}
 			}
 			if (flag >= 0)
 				it->operator()(roi).copyTo(temp(Rect(TRANSFORMED_SIZE / 9 - 2 * SPLIT_CUT - roi.width / 2, 
 				TRANSFORMED_SIZE / 9 - 2 * SPLIT_CUT - roi.height / 2, roi.width, roi.height)));
 			
-			/*if (ii == 7 && jj == 7)
+			/*if (ii == 5 && jj == 2)
 			{
 				imshow("10", temp);
 				waitKey();
