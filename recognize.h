@@ -6,7 +6,7 @@
 using namespace cv;
 using namespace std;
 
-int RecognizeSudoku(int* Result, vector<Mat> const Image);
+int RecognizeSudoku(int* Result, vector<Mat> const Image, Bpnn &bp);
 
 int Projection(Vecd &Result, Mat const Image);
 

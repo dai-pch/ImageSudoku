@@ -3,22 +3,12 @@
 using namespace cv;
 using namespace std;
 
-int RecognizeSudoku(int* Result, vector<Mat> const Image)
+int RecognizeSudoku(int* Result, vector<Mat> const Image, Bpnn &bp)
 {
-	//初始化神经网络
-	CreateInfo info;
-	info.__numHiddenLayers = 1;
-	info.__numInputsNodes = 900;
-	info.__numLayerNodes.push_back(20);
-	info.__numLayerNodes.push_back(10);
-	Bpnn &bp = *new Bpnn(info);
-	ifstream fs("train3.txt");
-	bp.Import(fs);
-
+	//用神经网络识别
 	for (int ii = 0; ii < 81; ii++)
 	{
-		//用神经网络识别
-		Vecd projection(900, 1);
+		Vecd projection;
 		Mat temp;
 
 		//减采样
